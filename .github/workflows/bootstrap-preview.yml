@@ -1,0 +1,35 @@
+name: Bootstrap Hua Wealth Management Preview
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Download original HTML attachment
+        env:
+          SOURCE_URL: "https://sdmntprjapaneast.oaiusercontent.com/files/00000000-7648-8209-975f-65425f969bb4/raw?se=2026-09-08T22%3A28%3A07Z&sp=r&sv=2026-02-06&sr=b&scid=c5b5f900-aa0c-5ac1-bda3-0f195ce41c02&skoid=bb372dd6-3b2a-4af2-b355-c26497ba23cd&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-08T21%3A23%3A17Z&ske=2026-09-09T21%3A23%3A17Z&sks=b&skv=2026-02-06&sig=lBm1O3g4I7niZVSy8Am734lwygsG9B9Cy3CHMynnVBk%3D"
+        run: |
+          curl --fail --location --retry 3 "$SOURCE_URL" --output index.html
+          test "$(wc -c < index.html)" -eq 563986
+          grep -qi '<title>Hua Wealth Management' index.html
+
+      - name: Save HTML to repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Add Hua Wealth Management preview [skip ci]"
+            git push
+          fi
